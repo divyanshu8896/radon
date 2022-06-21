@@ -1,9 +1,9 @@
-const { count } = require("console")
+
 const authorModel= require("../Models/AuthorModel")
 
 const createAuthor = async function (req, res) {
     let data = req.body;
-    let savedData = await userModel.create(data);
+    let savedData = await authorModel.create(data);
     res.send({ msg: savedData });
   };
 
