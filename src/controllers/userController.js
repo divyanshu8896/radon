@@ -65,9 +65,11 @@ const createUser = async function (req, res) {
         if (!password) {
             return res.status(400).send({ status: false, message: "password is missing" })
         }
+        
         if (!/^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[a-zA-Z!#$%&@? "])[a-zA-Z0-9!#$%&@?]{8,20}$/.test(password)) {
             return res.status(400).send({ status: false, message: "Enter a valid password" });
         }
+
 
         let Name = cutSpace(name)
         req.body.name = Name
@@ -107,7 +109,7 @@ const loginUser = async function (req, res) {
             {
                 userId: user._id.toString(),
                 iat: Math.floor(Date.now() / 1000),
-                exp: Math.floor(Date.now() / 1000) + 50 * 60 * 60,
+                exp: Math.floor(Date.now() / 1000) + 1*60*60,
                 batch: "radon",
                 organisation: "functionUp"
             },

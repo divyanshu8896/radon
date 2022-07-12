@@ -122,10 +122,6 @@ const getBooksById = async (req, res) => {
 
         let reviewsData = await reviewModel.find({ isDeleted: false, bookId: _id }).select({ _id: 1, bookId: 1, reviewedBy: 1, reviewedAt: 1, rating: 1, review: 1 })
         console.log(reviewsData)
-        if (reviewsData.length==0){
-            let msg = "for this book there is no review yet"
-            reviewsData = msg
-        }
 
         let list = { _id, title, excerpt, userId, category, subcategory, isDeleted, reviews, deletedAt, releasedAt, createdAt, updatedAt, reviewsData }
 
