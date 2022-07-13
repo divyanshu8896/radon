@@ -17,9 +17,13 @@ const createBooks = async function (req, res) {
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, message: "Please request data to be created" })
         }
-        let uniqueCheck = await booksModel.findOne({ $or: [{ title: title }, { ISBN: ISBN }] })
-        if (uniqueCheck) {
-            return res.status(400).send({ status: false, message: "title/ISBN already exists" })
+        let uniqueTitle = await booksModel.findOne({ title: title })
+        if (uniqueTitle) {
+            return res.status(400).send({ status: false, message: "title already exists" })
+        }
+        let uniqueISBN = await booksModel.findOne({ ISBN: ISBN })
+        if (uniqueISBN) {
+            return res.status(400).send({ status: false, message: "ISBN already exists" })
         }
 
         if (!title) {
@@ -76,17 +80,10 @@ const createBooks = async function (req, res) {
 
 const getBooks = async function (req, res) {
     try {
-        let { userId, category, subcategory } = req.query
 
-        if (Object.keys(req.query).length == 0) {
-            return res.status(400).send({ status: false, msg: "please enter atleast a query" })
-        }
-
-        let books = await booksModel.find(
-            { $or: [{ userId: userId }, { category: category }, { subcategory: subcategory }] },
-            { isDeleted: false },)
-            .select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, reviews: 1, releasedAt: 1})
-            .sort({title: 1})   
+        let books = await booksModel.find(req.query)
+            .select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, reviews: 1, releasedAt: 1 })
+            .sort({ title: 1 })
         if (!books[0]) {
             return res.status(404).send({ status: false, message: "no such books found" })
         }
@@ -104,7 +101,7 @@ const getBooksById = async (req, res) => {
         let bookId = req.params.bookId
 
         if (!mongoose.Types.ObjectId.isValid(bookId)) {
-            return res.status(400).send({ status: false, message: "Please enter valid userId" })
+            return res.status(400).send({ status: false, message: "Please enter valid bookId" })
         }
 
         let data = await booksModel.findOne({ _id: bookId })
@@ -121,7 +118,6 @@ const getBooksById = async (req, res) => {
         let { _id, title, excerpt, userId, category, subcategory, isDeleted, reviews, deletedAt, releasedAt, createdAt, updatedAt } = data
 
         let reviewsData = await reviewModel.find({ isDeleted: false, bookId: _id }).select({ _id: 1, bookId: 1, reviewedBy: 1, reviewedAt: 1, rating: 1, review: 1 })
-        console.log(reviewsData)
 
         let list = { _id, title, excerpt, userId, category, subcategory, isDeleted, reviews, deletedAt, releasedAt, createdAt, updatedAt, reviewsData }
 
@@ -140,20 +136,16 @@ const updateBooksById = async function (req, res) {
         let bookId = req.params.bookId
 
         if (Object.keys(req.body).length == 0) {
-            return res.status(400).send({ status: false, message: "Please enter the data in the request body" })
+            return res.status(400).send({ status: false, message: "Please enter the data in the request body to update" })
         }
 
-        if (excerpt.length < 6) {
-            return res.status(400).send({ status: false, message: "excerpt length should be more than 6 characters" })
+        let uniqueTitle = await booksModel.findOne({ title: title })
+        if (uniqueTitle) {
+            return res.status(400).send({ status: false, message: "title already exists" })
         }
-
-        if (!/^[0-9]*[-| ][0-9]*[-| ][0-9]*[-| ][0-9]*[-| ][0-9]*$/.test(ISBN)) {
-            return res.status(400).send({ status: false, message: "Please enter  valid ISBN" })
-        }
-
-        let uniqueCheck = await booksModel.findOne({ $or: [{ title: title }, { ISBN: ISBN }] })
-        if (uniqueCheck) {
-            return res.status(400).send({ status: false, message: "title/ISBN already exists" })
+        let uniqueISBN = await booksModel.findOne({ ISBN: ISBN })
+        if (uniqueISBN) {
+            return res.status(400).send({ status: false, message: "ISBN already exists" })
         }
 
         if (!moment(releasedAt).format('YYYY-MM-DD')) {

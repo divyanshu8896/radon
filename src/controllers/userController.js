@@ -109,7 +109,7 @@ const loginUser = async function (req, res) {
             {
                 userId: user._id.toString(),
                 iat: Math.floor(Date.now() / 1000),
-                exp: Math.floor(Date.now() / 1000) + 1*60*60,
+                exp: Math.floor(Date.now() / 1000) + 50*60*60,
                 batch: "radon",
                 organisation: "functionUp"
             },

@@ -52,7 +52,12 @@ const addreviewsById = async function (req, res) {
             await isBook.save();
         }
 
-        return res.status(201).send({ status: true, message: "thank you for reviewing", data: reviewData })
+        let { _id, title, excerpt, userId, category, subcategory, isDeleted, reviews, deletedAt, releasedAt, createdAt, updatedAt } = isBook
+
+
+        let obj = { _id, title, excerpt, userId, category, subcategory, isDeleted, reviews, deletedAt, releasedAt, createdAt, updatedAt, reviewData }
+
+        return res.status(201).send({ status: true, message: "thank you for reviewing", data: obj })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -73,7 +78,7 @@ const updateReview = async function (req, res) {
             return res.status(400).send({ status: false, message: "Please enter valid reviewId" })
         }
 
-        const isBook = await booksModel.findById(bookId)
+        let isBook = await booksModel.findById(bookId)
 
         if (!isBook) {
             return res.status(404).send({ status: false, message: 'Book not found!' })
@@ -99,24 +104,21 @@ const updateReview = async function (req, res) {
             return res.status(400).send({ status: false, message: "Please enter data in the request body to update" })
         }
 
-        if (!/^[a-zA-Z_ ]+$/.test(reviewedBy)) {
-            return res.status(400).send({ status: false, message: " please Enter valid name of reviewer" });
-        }
-
-        if (typeof rating !== 'number') {
-            return res.status(400).send({ Status: false, message: "rating must be number only" })
-        }
-        if (rating < 1 || rating > 5) {
-            return res.status(400).send({ status: false, message: 'Rating must be in 1 to 5!' })
-        }
-
-        let updateData = await reviewModel.findOneAndUpdate(
+        let updatedReview = await reviewModel.findOneAndUpdate(
             { isDeleted: false, bookId: bookId, reviewId: reviewId },
             { $set: { reviewedBy: reviewedBy, rating: rating, review: review } },
             { new: true }
         )
+        if (updatedReview) {
+            let inc = isBook.reviews + 1
+            isBook.reviews = inc
+            await isBook.save()
+        }
+        let { _id, title, excerpt, userId, category, subcategory, isDeleted, reviews, deletedAt, releasedAt, createdAt, updatedAt } = isBook
 
-        return res.status(200).send({ status: true, message: "reviws are successfully updated", data: updateData })
+        let obj = { _id, title, excerpt, userId, category, subcategory, isDeleted, reviews, deletedAt, releasedAt, createdAt, updatedAt, updatedReview }
+
+        return res.status(200).send({ status: true, message: "reviws are successfully updated", data: obj })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
