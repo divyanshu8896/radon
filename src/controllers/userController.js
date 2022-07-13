@@ -66,7 +66,7 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "password is missing" })
         }
         
-        if (!/^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[a-zA-Z!#$%&@? "])[a-zA-Z0-9!#$%&@?]{8,20}$/.test(password)) {
+        if (!/^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[a-zA-Z!#$%&@? "])[a-zA-Z0-9!#$%&@?]{8,15}$/.test(password)) {
             return res.status(400).send({ status: false, message: "Enter a valid password" });
         }
 
